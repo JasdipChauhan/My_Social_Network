@@ -2,7 +2,7 @@ from flask_wtf import Form
 from wtforms import StringField, PasswordField
 from wtforms.validators import DataRequired, Regexp, ValidationError, Email, Length, EqualTo
 
-from UserModel import User
+from models import User
 
 def name_exists(form, field):
     if User.select().where(User.username == field.data).exists():

@@ -1,8 +1,8 @@
 from flask import Flask, g, render_template, flash, redirect, url_for
-from flask.ext.login import LoginManager
+from flask_login import LoginManager
 
-import UserModel
-import Forms
+import models
+import forms
 
 DEBUG = True
 PORT = 8000
@@ -18,14 +18,14 @@ login_manager.login_view = 'login'
 @login_manager.user_loader
 def load_user(userid):
     try:
-        return UserModel.User.get(UserModel.User.id == userid)
-    except UserModel.DoesNotExist:
+        return models.User.get(models.User.id == userid)
+    except models.DoesNotExist:
         return None
 
 @app.before_request
 def before_request():
     """Connect to the database before each request"""
-    g.db = UserModel.DATABASE
+    g.db = models.DATABASE
     g.db.connect()
 
 @app.after_request
@@ -36,10 +36,10 @@ def after_request(response):
 
 @app.route('/register', methods=('GET', 'POST'))
 def register():
-    form = Forms.RegisterForm()
+    form = forms.RegisterForm()
     if form.validate_on_submit():
         flash('Register complete!', 'success')
-        UserModel.User.create_user(username=form.username.data, email=form.email.data, password=form.password.data)
+        models.User.create_user(username=form.username.data, email=form.email.data, password=form.password.data)
         return redirect(url_for('index'))
     return render_template('register.html', form=form)
 
@@ -49,9 +49,9 @@ def index():
 
 
 if __name__ == '__main__':
-    UserModel.initialize()
+    models.initialize()
     try:
-        UserModel.User.create_user(username="Jasdip", email="fake@fake.com", password='password', admin=True)
+        models.User.create_user(username="Jasdip", email="fake@fake.com", password='password', admin=True)
     except ValueError:
         pass
     app.run(debug=DEBUG, host=HOST, port=PORT)
