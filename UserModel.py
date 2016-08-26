@@ -1,7 +1,7 @@
 import datetime
 
-from flask.ext.bcrypt import generate_password_hash
-from flask.ext.login import UserMixin
+from flask_bcrypt import generate_password_hash
+from flask_login import UserMixin
 from peewee import *
 
 DATABASE = SqliteDatabase('social.db')
@@ -15,7 +15,7 @@ class User(UserMixin, Model):
 
     class Meta():
         database = DATABASE
-        order_by = ('-joined_at',)
+        order_by = ('-joined_at')
 
     #can create an instance of a user on this function call (meaning of classmethod)
     @classmethod
@@ -28,5 +28,10 @@ class User(UserMixin, Model):
                 is_admin = admin)
         except IntegrityError:
             raise ValueError("User already exists")
+
+def initialize():
+    DATABASE.connect()
+    DATABASE.create_table([User], safe=True)
+    DATABASE.close()
 
 
